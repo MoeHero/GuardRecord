@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <AssemblyVersion>GuardRecord.Program.VERSION</AssemblyVersion>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BilibiliUtilities.EndianBitConverter" Version="0.0.3" />
+    <PackageReference Include="FreeSql" Version="3.2.687" />
+    <PackageReference Include="FreeSql.DbContext" Version="3.2.687" />
+    <PackageReference Include="FreeSql.Provider.MySql" Version="3.2.687" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="WebSocketSharp.NetCore" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
