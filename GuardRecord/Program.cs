@@ -31,11 +31,12 @@ namespace GuardRecord
         private static Logger _logger = null;
         private static Dictionary<string, BilibiliClient> _roomList = new();
         private static List<Rooms> _dbRooms = new();
+        private static IDictionary<string, string> _env = DotEnv.Read();
 
         static void Main(string[] _) {
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
-            DotEnv.Load();
-            _logger = new(EnvReader.GetStringValue("LOG_PATH"));
+            
+            _logger = new(_env["LOG_PATH"]);
             _logger.OnWriteLog += Logger_WriteLog;
 
             _logger.Info("System", "程序启动...");
