@@ -31,7 +31,7 @@ namespace GuardRecord
 #if DEBUG
         private static Logger _logger = new("./Logs/");
 #else
-        private static Logger _logger = new("/logs");
+        private static Logger _logger = new("../logs/");
 #endif
         private static Dictionary<string, BilibiliClient> _roomList = new();
         private static List<Rooms> _dbRooms = new();
