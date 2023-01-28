@@ -28,15 +28,16 @@ namespace GuardRecord
             .UseConnectionString(FreeSql.DataType.MySql, @"data source=10.0.0.2;port=3306;user id=uptools;password=frj*fza-rwu3qmk6DKM;initial catalog=uptools;charset=utf8")
             .Build();
 
-        private static Logger _logger = null;
+#if DEBUG
+        private static Logger _logger = new("./Logs/");
+#else
+        private static Logger _logger = new("/logs");
+#endif
         private static Dictionary<string, BilibiliClient> _roomList = new();
         private static List<Rooms> _dbRooms = new();
-        private static IDictionary<string, string> _env = DotEnv.Read();
 
         static void Main(string[] _) {
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
-            
-            _logger = new(_env["LOG_PATH"]);
             _logger.OnWriteLog += Logger_WriteLog;
 
             _logger.Info("System", "程序启动...");
