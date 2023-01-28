@@ -30,7 +30,7 @@ namespace GuardRecord
 
         private static Dictionary<string, BilibiliClient> _roomList = new();
 
-        private static List<Rooms> _dbRooms = new1();
+        private static List<Rooms> _dbRooms = new();
 
         static void Main(string[] _) {
             System.AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
