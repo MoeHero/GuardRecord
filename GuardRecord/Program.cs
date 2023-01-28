@@ -1,4 +1,6 @@
-﻿using GuardRecord;
+﻿using dotenv.net;
+using dotenv.net.Utilities;
+using GuardRecord;
 using GuardRecord.Entities;
 using System;
 using System.Collections.Generic;
@@ -22,18 +24,18 @@ namespace GuardRecord
     {
         public const string VERSION = "0.1.0";
 
-        private readonly static Logger _logger = new("./Logs/");
-
         private readonly static IFreeSql _db = new FreeSql.FreeSqlBuilder()
             .UseConnectionString(FreeSql.DataType.MySql, @"data source=10.0.0.2;port=3306;user id=uptools;password=frj*fza-rwu3qmk6DKM;initial catalog=uptools;charset=utf8")
             .Build();
 
+        private static Logger _logger = null;
         private static Dictionary<string, BilibiliClient> _roomList = new();
-
         private static List<Rooms> _dbRooms = new();
 
         static void Main(string[] _) {
-            System.AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
+            AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
+            DotEnv.Load();
+            _logger = new(EnvReader.GetStringValue("LOG_PATH"));
             _logger.OnWriteLog += Logger_WriteLog;
 
             _logger.Info("System", "程序启动...");

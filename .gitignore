@@ -1,3 +1,4 @@
 .vs/
-GuardRecord/bin/
-GuardRecord/obj/
+*/bin/
+*/obj/
+.env
