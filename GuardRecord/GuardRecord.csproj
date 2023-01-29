@@ -14,21 +14,11 @@
 
   <ItemGroup>
     <PackageReference Include="BilibiliUtilities.EndianBitConverter" Version="0.0.3" />
-    <PackageReference Include="dotenv.net" Version="3.1.2" />
     <PackageReference Include="FreeSql" Version="3.2.687" />
     <PackageReference Include="FreeSql.DbContext" Version="3.2.687" />
     <PackageReference Include="FreeSql.Provider.MySql" Version="3.2.687" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="WebSocketSharp.NetCore" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update=".env">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update=".env.example">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,6 @@
-﻿using dotenv.net;
-using dotenv.net.Utilities;
-using GuardRecord;
-using GuardRecord.Entities;
+﻿using GuardRecord;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -24,17 +20,12 @@ namespace GuardRecord
     {
         public const string VERSION = "0.1.0";
 
-        private readonly static IFreeSql _db = new FreeSql.FreeSqlBuilder()
-            .UseConnectionString(FreeSql.DataType.MySql, @"data source=10.0.0.2;port=3306;user id=uptools;password=frj*fza-rwu3qmk6DKM;initial catalog=uptools;charset=utf8")
-            .Build();
-
 #if DEBUG
         private static Logger _logger = new("./Logs/");
 #else
         private static Logger _logger = new("../logs/");
 #endif
         private static Dictionary<string, BilibiliClient> _roomList = new();
-        private static List<Rooms> _dbRooms = new();
 
         static void Main(string[] _) {
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionTrapper;
@@ -45,22 +36,26 @@ namespace GuardRecord
             Console.Title = $"舰队记录工具 - V{VERSION}";
 
             Task.Run(async () => {
+                //throw new UnauthorizedAccessException("The header part of a frame could not be read.");
                 while(true) {
-                    _dbRooms = await _db.Select<Rooms>().Where(r => r.IsDeleted == 0).ToListAsync();
-                    foreach(var roomId in _dbRooms.Select(r => r.RoomId)) {
-                        if(_roomList.ContainsKey(roomId)) continue;
-                        _logger.Info("System", $"连接直播间[{roomId}]...");
-                        var client = new BilibiliClient(roomId);
-                        client.GuardBuy += LiveRoom_GuardBuy;
-                        client.Connect();
-                        _roomList.Add(roomId, client);
-                        _logger.Info("System", $"连接成功, 开始监听[{roomId}]...");
-                    }
-                    foreach(var roomId in _roomList.Keys) {
-                        if(_dbRooms.Select(r => r.RoomId).Contains(roomId)) continue;
-                        _roomList[roomId].GuardBuy -= LiveRoom_GuardBuy;
-                        _roomList[roomId].Dispose();
-                        _roomList.Remove(roomId);
+                    var rooms = Http.GetJson("http://uptools.moegarden.com/api/app/rooms");
+                    if(rooms["code"].ToString() == "0") {
+                        var roomIds = rooms["data"]["list"].Select(r => r["roomId"].ToString());
+                        foreach(var roomId in roomIds) {
+                            if(_roomList.ContainsKey(roomId)) continue;
+                            _logger.Info("System", $"连接直播间[{roomId}]...");
+                            var client = new BilibiliClient(roomId);
+                            client.GuardBuy += LiveRoom_GuardBuy;
+                            client.Connect();
+                            _roomList.Add(roomId, client);
+                            _logger.Info("System", $"连接成功, 开始监听[{roomId}]...");
+                        }
+                        foreach(var roomId in _roomList.Keys) {
+                            if(roomIds.Contains(roomId)) continue;
+                            _roomList[roomId].GuardBuy -= LiveRoom_GuardBuy;
+                            _roomList[roomId].Dispose();
+                            _roomList.Remove(roomId);
+                        }
                     }
                     await Task.Delay(60000);
                 }
@@ -78,20 +73,15 @@ namespace GuardRecord
                 _ => $"未知:{e.Level}"
             };
             _logger.Info("LiveRoom", $"舰队开通 房间号:{client.RoomId} Uid:{e.UserId} 用户名:{e.Username} 等级:{levelName} 数量:{e.Number}");
-            var levelEnum = e.Level switch {
-                1 => GuardHistoriesLEVEL.Unknow1,
-                2 => GuardHistoriesLEVEL.Unknow2,
-                3 => GuardHistoriesLEVEL.Unknow3,
-            };
-            _db.Insert(new GuardHistories {
-                RoomId = _dbRooms.First(r => r.RoomId == client.RoomId).Id,
-                UserId = e.UserId,
-                Username = e.Username,
-                Level = levelEnum,
-                Num = e.Number,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-            }).ExecuteAffrows();
+#if !DEBUG
+            Http.Post("http://uptools.moegarden.com/api/app/history", "{" +
+                $"\"room_id\":\"{client.RoomId}\"," +
+                $"\"user_id\":\"{e.UserId}\"," +
+                $"\"username\":\"{e.Username}\"," +
+                $"\"level\":\"{e.Level}\"," +
+                $"\"num\":\"{e.Number}\"" +
+                "}");
+#endif
         }
 
         private static void Logger_WriteLog(object sender, LogEventArgs e) {
